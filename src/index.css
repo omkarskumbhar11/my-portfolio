@@ -1,0 +1,221 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Space Mono", ui-monospace, SFMono-Regular, monospace;
+  
+  --color-accent: var(--accent-color);
+  --color-dark: #050505;
+  --color-card: var(--card-bg);
+  --color-border-theme: var(--border-color);
+  --color-nav: rgb(var(--nav-bg-rgb));
+  --color-nav-text: var(--nav-text);
+  --color-nav-text-hover: var(--nav-text-hover);
+  --color-nav-accent: var(--nav-accent);
+  --color-nav-border: var(--nav-border);
+}
+
+:root {
+  --bg-color: #050505;
+  --text-color: #f8fafc;
+  --card-bg: rgba(255, 255, 255, 0.03);
+  --border-color: rgba(255, 255, 255, 0.08);
+  --nav-bg-rgb: 15, 23, 42;
+  --nav-text: rgba(248, 250, 252, 0.8);
+  --nav-text-hover: #ffffff;
+  --nav-accent: #818cf8;
+  --nav-border: rgba(255, 255, 255, 0.1);
+  --nav-opacity: 0.8;
+  --accent-color: #818cf8;
+}
+
+.light {
+  --bg-color: #f8fafc;
+  --text-color: #0f172a;
+  --card-bg: rgba(255, 255, 255, 0.7);
+  --border-color: rgba(0, 0, 0, 0.06);
+  --accent-color: #6366f1;
+}
+
+.warm {
+  --bg-color: #fffbeb;
+  --text-color: #78350f;
+  --card-bg: rgba(254, 243, 199, 0.7);
+  --border-color: rgba(251, 191, 36, 0.2);
+  --accent-color: #f59e0b;
+}
+
+.midnight {
+  --bg-color: #050110;
+  --text-color: #f1f5f9;
+  --card-bg: rgba(20, 10, 50, 0.5);
+  --border-color: rgba(167, 139, 250, 0.3);
+  --accent-color: #a78bfa;
+}
+
+.forest {
+  --bg-color: #020a05;
+  --text-color: #f0fdf4;
+  --card-bg: rgba(5, 30, 15, 0.5);
+  --border-color: rgba(52, 211, 153, 0.3);
+  --accent-color: #34d399;
+}
+
+.cyber {
+  --bg-color: #000000;
+  --text-color: #ffffff;
+  --card-bg: rgba(0, 0, 0, 0.9);
+  --border-color: rgba(0, 255, 255, 0.4);
+  --accent-color: #00ffff;
+}
+
+@layer base {
+  body {
+    background: var(--bg-color);
+    color: var(--text-color);
+    @apply transition-colors duration-300 font-sans antialiased;
+    position: relative;
+    min-height: 100vh;
+  }
+
+  .light body::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(79, 70, 229, 0.03) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.03) 0px, transparent 50%),
+      radial-gradient(at 50% 100%, rgba(37, 99, 235, 0.02) 0px, transparent 50%),
+      linear-gradient(to right, rgba(0,0,0,0.01) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(0,0,0,0.01) 1px, transparent 1px);
+    background-size: 100% 100%, 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+    background-attachment: fixed;
+  }
+
+  .warm body::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(245, 158, 11, 0.05) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, rgba(251, 191, 36, 0.05) 0px, transparent 50%),
+      radial-gradient(at 50% 100%, rgba(217, 119, 6, 0.03) 0px, transparent 50%),
+      linear-gradient(to right, rgba(120, 53, 15, 0.01) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(120, 53, 15, 0.01) 1px, transparent 1px);
+    background-size: 100% 100%, 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+    background-attachment: fixed;
+  }
+
+  .midnight body::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.1) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(79, 70, 229, 0.1) 0px, transparent 50%),
+      linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 100% 100%, 100% 100%, 60px 60px, 60px 60px;
+    background-attachment: fixed;
+  }
+
+  .forest body::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    background-image: 
+      radial-gradient(at 0% 100%, rgba(16, 185, 129, 0.1) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, rgba(5, 150, 105, 0.1) 0px, transparent 50%),
+      linear-gradient(to right, rgba(255,255,255,0.01) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,0.01) 1px, transparent 1px);
+    background-size: 100% 100%, 100% 100%, 80px 80px, 80px 80px;
+    background-attachment: fixed;
+  }
+
+  .cyber body::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(0, 255, 255, 0.15) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(255, 0, 255, 0.15) 0px, transparent 50%),
+      linear-gradient(to right, rgba(0, 255, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(0, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+    background-attachment: fixed;
+  }
+  
+  section {
+    scroll-margin-top: 6rem;
+  }
+}
+
+.glass-card {
+  background: var(--card-bg);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-color);
+  @apply transition-all duration-400 ease-in-out;
+}
+
+.light .glass-card {
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.02), 
+    0 2px 4px -1px rgba(0, 0, 0, 0.01),
+    0 20px 25px -5px rgba(0, 0, 0, 0.03);
+}
+
+.glass-card:hover {
+  border-color: rgba(129, 140, 248, 0.4);
+  transform: translateY(-5px);
+}
+
+.liquid-glass {
+  background: rgba(var(--nav-bg-rgb), var(--nav-opacity));
+  backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--nav-border);
+  box-shadow: 
+    0 8px 32px 0 rgba(0, 0, 0, 0.1),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.light .liquid-glass {
+  box-shadow: 
+    0 4px 20px -5px rgba(0, 0, 0, 0.05),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.02);
+}
+
+.nav-link {
+  @apply font-mono text-[0.85rem] tracking-[0.1em] transition-colors duration-300 uppercase;
+}
+
+.nav-link:hover {
+  @apply text-accent;
+}
+
+.glow-circle {
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  background: var(--accent-color);
+  opacity: 0.1;
+  filter: blur(100px);
+  border-radius: 50%;
+  z-index: -1;
+}
+
+.light .glow-circle, .warm .glow-circle {
+  opacity: 0.05;
+}
+
+.devicon-ansible-plain, .devicon-ansible-plain-wordmark {
+  color: #EE0000;
+}
+
+.section-padding {
+  @apply py-[100px];
+}
