@@ -583,7 +583,7 @@ export default function App() {
         setTheme={setTheme} 
       />
 
-      <main className="flex-1 pt-24 md:pt-28 pb-6 px-4 md:px-10 lg:px-16 overflow-x-hidden">
+      <main className="flex-1 pt-24 md:pt-28 pb-6 px-4 md:px-10 lg:px-16">
         <div className="w-full h-full">
           {renderContent()}
         </div>

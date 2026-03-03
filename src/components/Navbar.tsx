@@ -14,10 +14,14 @@ export default function Navbar({ activeTab, setActiveTab, theme, setTheme }: Nav
   const [mobileMenu, setMobileMenu] = useState(false);
   const [showInfinity, setShowInfinity] = useState(false);
   const [showThemeMenu, setShowThemeMenu] = useState(false);
-  const [visible, setVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
-  const [scrollProgress, setScrollProgress] = useState(0);
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
   const themeMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const themes = [
     { id: 'dark', icon: <Moon className="w-4 h-4" />, label: 'Dark', color: '#1e293b' },
@@ -47,60 +51,45 @@ export default function Navbar({ activeTab, setActiveTab, theme, setTheme }: Nav
 
   useEffect(() => {
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
-      
-      // Update visibility
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        setVisible(false);
-      } else {
-        setVisible(true);
-      }
-      
-      // Update scrolled state
-      setScrolled(currentScrollY > 20);
-      
-      // Update scroll progress
-      if (totalHeight > 0) {
-        setScrollProgress((currentScrollY / totalHeight) * 100);
-      }
-      
-      setLastScrollY(currentScrollY);
+      const scrollPos = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
+      setScrolled(scrollPos > 50);
     };
-
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY]);
+  }, []);
 
   const tabs = ["profile", "tools", "experience", "education", "lab", "contact"];
 
   return (
     <motion.nav 
-      initial={{ y: 0 }}
-      animate={{ y: visible ? 0 : -100 }}
-      transition={{ duration: 0.3, ease: "easeInOut" }}
-      className={`fixed top-0 left-0 right-0 z-50 flex justify-center pointer-events-none transition-all duration-300 ${
-        scrolled ? "pt-0" : "pt-4 px-4"
-      }`}
+      initial={false}
+      animate={{
+        paddingTop: scrolled ? 0 : 16,
+        paddingLeft: scrolled ? 0 : (windowWidth < 768 ? 16 : 24),
+        paddingRight: scrolled ? 0 : (windowWidth < 768 ? 16 : 24),
+      }}
+      transition={{ type: "spring", stiffness: 400, damping: 30 }}
+      className="fixed top-0 left-0 right-0 z-50 flex justify-center pointer-events-none"
     >
-      {/* Scroll Progress Bar */}
-      <motion.div 
-        className="absolute top-0 left-0 h-1 bg-nav-accent z-[60] origin-left"
-        style={{ width: `${scrollProgress}%` }}
-      />
       <motion.div 
         layout
         initial={false}
+        animate={{
+          width: scrolled ? "100%" : "min(1500px, 100%)",
+          borderRadius: scrolled ? 0 : (windowWidth < 768 ? 24 : 9999),
+          paddingTop: scrolled ? 8 : 14,
+          paddingBottom: scrolled ? 8 : 14,
+        }}
         transition={{
           type: "spring",
-          stiffness: 250,
+          stiffness: 400,
           damping: 30,
           mass: 1
         }}
-        className={`pointer-events-auto flex justify-between items-center px-6 md:px-10 liquid-glass relative ${
+        className={`pointer-events-auto flex justify-between items-center px-4 md:px-10 lg:px-16 liquid-glass relative ${
           scrolled 
-            ? "w-full py-2 border-b shadow-2xl" 
-            : "w-full max-w-[1500px] py-3.5 rounded-full shadow-2xl shadow-accent/5"
+            ? "border-b shadow-2xl" 
+            : "shadow-2xl shadow-accent/5"
         }`}
       >
         {/* Desktop Menu - Left Side */}
@@ -109,8 +98,8 @@ export default function Navbar({ activeTab, setActiveTab, theme, setTheme }: Nav
             <motion.button 
               key={tab}
               onClick={() => setActiveTab(tab)} 
-              whileHover={{ scale: 1.05, y: -1 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={tab === "profile" ? { scale: 1.05 } : {}}
+              whileTap={{ scale: 0.98 }}
               className={`relative px-3 lg:px-5 py-2 rounded-full text-[11px] lg:text-[13px] font-bold uppercase tracking-widest transition-colors duration-300 cursor-pointer ${
                 activeTab === tab 
                   ? "text-white" 
@@ -121,7 +110,7 @@ export default function Navbar({ activeTab, setActiveTab, theme, setTheme }: Nav
                 <motion.div 
                   layoutId="activeTabPill"
                   className="absolute inset-0 bg-nav-accent rounded-full -z-10 shadow-lg shadow-nav-accent/30"
-                  transition={{ type: "spring", bounce: 0.25, duration: 0.6 }}
+                  transition={{ type: "spring", bounce: 0.15, duration: 0.4 }}
                 />
               )}
               {tab === "contact" ? "Connect" : tab === "tools" ? "TechTools" : tab === "lab" ? "AI LAB" : tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -264,45 +253,30 @@ export default function Navbar({ activeTab, setActiveTab, theme, setTheme }: Nav
       {/* Mobile Drawer */}
       <AnimatePresence>
         {mobileMenu && (
-          <>
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setMobileMenu(false)}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden"
-            />
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: -20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: -20 }}
-              transition={{ type: "spring", damping: 25, stiffness: 400, mass: 0.5 }}
-              className="absolute top-full left-4 right-4 mt-2 liquid-glass rounded-2xl p-6 flex flex-col gap-2 text-center md:hidden shadow-2xl z-50 pointer-events-auto overflow-hidden"
-            >
-              <div className="flex justify-between items-center mb-4 border-b border-nav-border pb-4">
-                <span className="text-[10px] font-mono uppercase tracking-widest opacity-40">Navigation</span>
-                <button onClick={() => setMobileMenu(false)} className="p-2 bg-nav-accent/10 rounded-lg text-nav-accent">
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-              {tabs.map((tab, index) => (
-                <motion.button 
-                  key={tab}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  onClick={() => { setActiveTab(tab); setMobileMenu(false); }} 
-                  className={`nav-link py-4 text-lg rounded-xl transition-all ${
-                    activeTab === tab 
-                      ? "text-nav-accent font-bold bg-nav-accent/10" 
-                      : "text-nav-text hover:text-nav-text-hover hover:bg-nav-text/5"
-                  }`}
-                >
-                  {tab === "contact" ? "Connect" : tab === "tools" ? "TechTools" : tab === "lab" ? "AI LAB" : tab.charAt(0).toUpperCase() + tab.slice(1)}
-                </motion.button>
-              ))}
-            </motion.div>
-          </>
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95, y: -20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: -20 }}
+            transition={{ type: "spring", damping: 25, stiffness: 400, mass: 0.5 }}
+            className="absolute top-full left-4 right-4 mt-2 liquid-glass rounded-2xl p-6 flex flex-col gap-2 text-center md:hidden shadow-2xl pointer-events-auto overflow-hidden"
+          >
+            {tabs.map((tab, index) => (
+              <motion.button 
+                key={tab}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.05 }}
+                onClick={() => { setActiveTab(tab); setMobileMenu(false); }} 
+                className={`nav-link py-4 text-lg rounded-xl transition-all ${
+                  activeTab === tab 
+                    ? "text-nav-accent font-bold bg-nav-accent/10" 
+                    : "text-nav-text hover:text-nav-text-hover hover:bg-nav-text/5"
+                }`}
+              >
+                {tab === "contact" ? "Connect" : tab === "tools" ? "TechTools" : tab === "lab" ? "AI LAB" : tab.charAt(0).toUpperCase() + tab.slice(1)}
+              </motion.button>
+            ))}
+          </motion.div>
         )}
       </AnimatePresence>
     </motion.nav>
