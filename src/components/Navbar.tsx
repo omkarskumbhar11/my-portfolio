@@ -1,6 +1,8 @@
 import { motion, AnimatePresence } from 'motion/react';
-import { Moon, Sun, Menu, X, Sparkles, Leaf, Zap, Palette, Coffee } from 'lucide-react';
+import { Moon, Sun, Menu, X, Sparkles, Leaf, Zap, Palette, Coffee, Droplets } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
+
+import { useWindowSize } from '../hooks/useWindowSize';
 
 interface NavbarProps {
   activeTab: string;
@@ -10,18 +12,11 @@ interface NavbarProps {
 }
 
 export default function Navbar({ activeTab, setActiveTab, theme, setTheme }: NavbarProps) {
-  const [scrolled, setScrolled] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);
   const [showInfinity, setShowInfinity] = useState(false);
   const [showThemeMenu, setShowThemeMenu] = useState(false);
-  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
+  const { width: windowWidth } = useWindowSize();
   const themeMenuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleResize = () => setWindowWidth(window.innerWidth);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   const themes = [
     { id: 'dark', icon: <Moon className="w-4 h-4" />, label: 'Dark', color: '#1e293b' },
@@ -30,6 +25,7 @@ export default function Navbar({ activeTab, setActiveTab, theme, setTheme }: Nav
     { id: 'midnight', icon: <Sparkles className="w-4 h-4" />, label: 'Midnight', color: '#8b5cf6' },
     { id: 'forest', icon: <Leaf className="w-4 h-4" />, label: 'Forest', color: '#10b981' },
     { id: 'cyber', icon: <Zap className="w-4 h-4" />, label: 'Cyber', color: '#ff00ff' },
+    { id: 'liquid', icon: <Droplets className="w-4 h-4" />, label: 'Liquid Glass', color: '#3b82f6' },
   ];
 
   useEffect(() => {
@@ -49,24 +45,15 @@ export default function Navbar({ activeTab, setActiveTab, theme, setTheme }: Nav
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollPos = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
-      setScrolled(scrollPos > 50);
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
   const tabs = ["profile", "tools", "experience", "education", "lab", "contact"];
 
   return (
     <motion.nav 
       initial={false}
       animate={{
-        paddingTop: scrolled ? 0 : 16,
-        paddingLeft: scrolled ? 0 : (windowWidth < 768 ? 16 : 24),
-        paddingRight: scrolled ? 0 : (windowWidth < 768 ? 16 : 24),
+        paddingTop: 16,
+        paddingLeft: (windowWidth < 768 ? 16 : 24),
+        paddingRight: (windowWidth < 768 ? 16 : 24),
       }}
       transition={{ type: "spring", stiffness: 400, damping: 30 }}
       className="fixed top-0 left-0 right-0 z-50 flex justify-center pointer-events-none"
@@ -75,10 +62,10 @@ export default function Navbar({ activeTab, setActiveTab, theme, setTheme }: Nav
         layout
         initial={false}
         animate={{
-          width: scrolled ? "100%" : "min(1500px, 100%)",
-          borderRadius: scrolled ? 0 : (windowWidth < 768 ? 24 : 9999),
-          paddingTop: scrolled ? 8 : 14,
-          paddingBottom: scrolled ? 8 : 14,
+          width: "min(1500px, 100%)",
+          borderRadius: (windowWidth < 768 ? 24 : 9999),
+          paddingTop: 14,
+          paddingBottom: 14,
         }}
         transition={{
           type: "spring",
@@ -86,11 +73,7 @@ export default function Navbar({ activeTab, setActiveTab, theme, setTheme }: Nav
           damping: 30,
           mass: 1
         }}
-        className={`pointer-events-auto flex justify-between items-center px-4 md:px-10 lg:px-16 liquid-glass relative ${
-          scrolled 
-            ? "border-b shadow-2xl" 
-            : "shadow-2xl shadow-accent/5"
-        }`}
+        className="pointer-events-auto flex justify-between items-center px-4 md:px-10 lg:px-16 liquid-glass relative shadow-2xl shadow-accent/5"
       >
         {/* Desktop Menu - Left Side */}
         <div className="hidden md:flex items-center gap-0.5 lg:gap-1">
@@ -123,6 +106,9 @@ export default function Navbar({ activeTab, setActiveTab, theme, setTheme }: Nav
               onClick={() => setShowThemeMenu(!showThemeMenu)} 
               className="p-2.5 text-nav-accent hover:bg-nav-text/10 rounded-full transition-all cursor-pointer flex items-center gap-2"
               title="Change Theme"
+              aria-label="Change Theme"
+              aria-expanded={showThemeMenu}
+              aria-haspopup="true"
             >
               <Palette className="w-5 h-5" />
             </button>
@@ -212,6 +198,9 @@ export default function Navbar({ activeTab, setActiveTab, theme, setTheme }: Nav
             <button 
               onClick={() => setShowThemeMenu(!showThemeMenu)} 
               className="text-nav-accent p-2.5"
+              aria-label="Change Theme"
+              aria-expanded={showThemeMenu}
+              aria-haspopup="true"
             >
               <Palette className="w-6 h-6" />
             </button>
@@ -244,7 +233,12 @@ export default function Navbar({ activeTab, setActiveTab, theme, setTheme }: Nav
               )}
             </AnimatePresence>
           </div>
-          <button onClick={() => setMobileMenu(!mobileMenu)} className="p-2.5 text-nav-accent hover:bg-nav-text/10 rounded-xl transition-all">
+          <button 
+            onClick={() => setMobileMenu(!mobileMenu)} 
+            className="p-2.5 text-nav-accent hover:bg-nav-text/10 rounded-xl transition-all"
+            aria-label={mobileMenu ? "Close Menu" : "Open Menu"}
+            aria-expanded={mobileMenu}
+          >
             {mobileMenu ? <X className="w-7 h-7" /> : <Menu className="w-7 h-7" />}
           </button>
         </div>
@@ -253,8 +247,18 @@ export default function Navbar({ activeTab, setActiveTab, theme, setTheme }: Nav
       {/* Mobile Drawer */}
       <AnimatePresence>
         {mobileMenu && (
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95, y: -20 }}
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setMobileMenu(false)}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[-1] md:hidden pointer-events-auto"
+              aria-hidden="true"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: -20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -20 }}
             transition={{ type: "spring", damping: 25, stiffness: 400, mass: 0.5 }}
@@ -277,6 +281,7 @@ export default function Navbar({ activeTab, setActiveTab, theme, setTheme }: Nav
               </motion.button>
             ))}
           </motion.div>
+        </>
         )}
       </AnimatePresence>
     </motion.nav>

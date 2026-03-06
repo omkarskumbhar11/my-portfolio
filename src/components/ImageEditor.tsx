@@ -43,7 +43,9 @@ export default function ImageEditor({ onActiveChange }: { onActiveChange?: (acti
     try {
       if (window.aistudio?.openSelectKey) {
         await window.aistudio.openSelectKey();
-        setHasSelectedKey(true);
+        // Assume success and check again
+        const selected = await window.aistudio.hasSelectedApiKey();
+        setHasSelectedKey(selected);
       }
     } catch (err) {
       console.error("Error opening key selection:", err);
@@ -187,8 +189,11 @@ export default function ImageEditor({ onActiveChange }: { onActiveChange?: (acti
   };
 
   return (
-    <div className="glass-card rounded-2xl p-2 md:p-3 w-full">
-      <div className="flex items-center gap-2 mb-2">
+    <div className="glass-card rounded-2xl p-2 md:p-3 w-full relative overflow-hidden group/lab">
+      <div className="absolute -top-24 -left-24 w-64 h-64 bg-accent/10 rounded-full blur-[100px] group-hover/lab:bg-accent/20 transition-all duration-1000" />
+      <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-accent/10 rounded-full blur-[100px] group-hover/lab:bg-accent/20 transition-all duration-1000" />
+      <div className="relative z-10">
+        <div className="flex items-center gap-2 mb-2">
         <div className="p-1.5 bg-accent/10 rounded-lg text-accent">
           <Wand2 className="w-4 h-4" />
         </div>
@@ -211,6 +216,7 @@ export default function ImageEditor({ onActiveChange }: { onActiveChange?: (acti
           <button 
             onClick={handleSelectKey}
             className="text-[9px] font-bold text-accent hover:underline flex items-center gap-1 whitespace-nowrap"
+            aria-label="Connect your Gemini API key"
           >
             Connect API Key <ExternalLink className="w-2.5 h-2.5" />
           </button>
@@ -226,6 +232,7 @@ export default function ImageEditor({ onActiveChange }: { onActiveChange?: (acti
           <button 
             onClick={handleSelectKey}
             className="ml-auto text-[9px] font-bold opacity-40 hover:opacity-100 uppercase tracking-widest"
+            aria-label="Change your Gemini API key"
           >
             Change Key
           </button>
@@ -237,18 +244,28 @@ export default function ImageEditor({ onActiveChange }: { onActiveChange?: (acti
         <div className="flex flex-col gap-2">
           <div 
             onClick={() => !image && fileInputRef.current?.click()}
-            className={`relative aspect-video rounded-xl border-2 border-dashed transition-all flex flex-col items-center justify-center cursor-pointer overflow-hidden group
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                if (!image) fileInputRef.current?.click();
+              }
+            }}
+            role="button"
+            tabIndex={image ? -1 : 0}
+            aria-label={image ? "Selected image" : "Upload an image to edit"}
+            className={`relative aspect-video rounded-xl border-2 border-dashed transition-all flex flex-col items-center justify-center cursor-pointer overflow-hidden group focus:outline-none focus:ring-2 focus:ring-accent
               ${image ? 'border-accent/50' : 'border-border-theme hover:border-accent/50 bg-card/30'}`}
           >
             {image ? (
               <>
-                <img src={image} alt="Input" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                <img src={image} alt="Original uploaded image for AI editing" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                 <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                   <p className="text-white text-[10px] font-bold bg-black/40 px-2 py-1 rounded-full backdrop-blur-sm">Change Image</p>
                 </div>
                 <button 
                   onClick={(e) => { e.stopPropagation(); reset(); }}
                   className="absolute top-2 right-2 p-1 bg-black/40 backdrop-blur-md rounded-full text-white hover:bg-red-500 transition-colors z-10"
+                  aria-label="Remove image"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -283,6 +300,7 @@ export default function ImageEditor({ onActiveChange }: { onActiveChange?: (acti
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 placeholder="e.g., 'Add a retro filter'..."
+                aria-label="AI Edit Prompt"
                 className="w-full bg-card/30 border border-border-theme rounded-lg p-2 text-xs focus:border-accent outline-none transition-all resize-none h-14 md:h-16 shadow-inner"
               />
             </div>
@@ -331,7 +349,7 @@ export default function ImageEditor({ onActiveChange }: { onActiveChange?: (acti
                 >
                   <img 
                     src={resultImage} 
-                    alt="Result" 
+                    alt="AI Generated Result Image" 
                     className="w-full h-full object-cover" 
                   />
                   <div className="absolute bottom-2 right-2 flex gap-1.5">
@@ -343,6 +361,7 @@ export default function ImageEditor({ onActiveChange }: { onActiveChange?: (acti
                         link.click();
                       }}
                       className="p-1.5 bg-black/40 backdrop-blur-md rounded-lg text-white hover:bg-accent transition-colors shadow-lg"
+                      aria-label="Download generated image"
                     >
                       <Upload className="w-3.5 h-3.5 rotate-180" />
                     </button>
@@ -388,6 +407,7 @@ export default function ImageEditor({ onActiveChange }: { onActiveChange?: (acti
             </p>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

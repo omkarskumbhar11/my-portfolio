@@ -6,9 +6,8 @@ import {defineConfig, loadEnv} from 'vite';
 export default defineConfig(({mode}) => {
   const env = loadEnv(mode, '.', '');
   return {
-    // Set the base path to your repository name for GitHub Pages deployment.
-    // If hosting at username.github.io, set this to '/'.
-    base: mode === 'production' ? '/my-portfolio/' : '/',
+    // Using relative base path './' ensures the app works correctly regardless of the subfolder depth on GitHub Pages.
+    base: './',
     plugins: [react(), tailwindcss()],
     define: {
       'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY || ''),
